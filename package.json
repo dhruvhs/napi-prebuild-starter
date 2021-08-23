@@ -1,18 +1,27 @@
 {
-  "name": "@lgeiger/napi-prebuild-starter",
+  "name": "@dhruvhs/napi-prebuild-starter",
+  "repository": "git://github.com/dhruvhs/napi-prebuild-starter.git",
   "publishConfig": {
     "access": "public"
   },
   "version": "0.3.1",
-  "description": "Node.js Addons Example using prebuildify",
+  "description": "Node.js Addons Example",
   "main": "hello.js",
   "dependencies": {
     "node-addon-api": "^1.5.0",
     "node-gyp-build": "3.4.0"
   },
+  "config": {
+    "runtime": "napi",
+    "target": 3
+  },
+  "binary": {
+    "napi_versions": [
+      3
+    ]
+  },
   "scripts": {
-    "install": "node-gyp-build",
-    "prebuild": "prebuildify --napi --strip",
+    "install": "prebuild-install -r napi || node-gyp-build",
     "test": "node hello.js"
   },
   "gypfile": true,
@@ -23,6 +32,5 @@
     "prebuilds"
   ],
   "devDependencies": {
-    "prebuildify": "2.8.0"
   }
 }
