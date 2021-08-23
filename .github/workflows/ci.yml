@@ -1,0 +1,44 @@
+name: CI (GitHub)
+on:
+  - push
+  - pull_request
+jobs:
+  CI:
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # - os: ubuntu-20.04
+          #   container: node:14-alpine3.13
+          - os: macos-10.15
+            nodejs_version: 14
+    steps:
+      - name: Dependencies (Linux musl)
+        if: contains(matrix.container, 'alpine')
+        run: |
+          apk update
+          apk add build-base git python3 --update-cache
+          apk update && apk add ca-certificates && update-ca-certificates && apk add openssl
+          apk add wget cmake eigen-dev gtk+2.0-dev openblas-dev
+      - name: Dependencies (macOS, Windows)
+        if: contains(matrix.os, 'macos') || contains(matrix.os, 'windows')
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.nodejs_version }}
+      
+      - name: Checkout (alpine)
+        if: contains(matrix.container, 'alpine')
+        uses: actions/checkout@v1
+      - name: Checkout (mac)
+        if: contains(matrix.os, 'macos')
+        uses: actions/checkout@v2
+      
+      - name: Run prebuild
+        run: |
+          yarn
+          npm install -g prebuild
+          prebuild --all --runtime napi --upload -u ${{ secrets.GITHUB_TOKEN }}
+          cd prebuilds
+          ls -R
